@@ -1,6 +1,5 @@
 package io.github.m1theus.job.mapper;
 
-import io.github.m1theus.CustomerMessage;
 import org.junit.jupiter.api.Test;
 
 import static io.github.m1theus.job.helper.CustomerHelper.mockCustomer;

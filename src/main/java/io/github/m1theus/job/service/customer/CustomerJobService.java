@@ -20,7 +20,7 @@ public class CustomerJobService {
     @Value("${job.generate.limit}")
     private BigInteger generateLimit = BigInteger.ZERO;
 
-    private Integer processedCounter = 0;
+    private BigInteger processedCounter = BigInteger.ZERO;
 
     @Async(DEFAULT_CORE_TASK_EXECUTOR)
     public void start() {
@@ -30,11 +30,11 @@ public class CustomerJobService {
             final var customer = customerService.createCustomer();
 
             customerService.saveCustomer(customer);
-            processedCounter++;
+            processedCounter = processedCounter.add(BigInteger.ONE);
             log.info("c=CustomerJobService, M=start, status=SAVED, counter={}", processedCounter);
-        } while (true);
+        } while (processedCounter.compareTo(generateLimit) < 0);
 
-//        log.info("c=CustomerJobService, M=start, status=FINISHED, counter={}", processedCounter);
+        log.info("c=CustomerJobService, M=start, status=FINISHED, counter={}", processedCounter);
     }
 
 }

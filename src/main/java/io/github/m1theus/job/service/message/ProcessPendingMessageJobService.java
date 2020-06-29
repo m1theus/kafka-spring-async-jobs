@@ -29,7 +29,7 @@ public class ProcessPendingMessageJobService {
     private BigInteger processLimit = BigInteger.ZERO;
     @Value("${job.process.page-size}")
     private Integer pageSize = 1;
-    private Integer processedCounter = 0;
+    private BigInteger processedCounter = BigInteger.ZERO;
 
     @Async(DEFAULT_CORE_TASK_EXECUTOR)
     public void start() {
@@ -48,13 +48,13 @@ public class ProcessPendingMessageJobService {
             }
 
             pendingEntities.parallelStream().forEach(this::savePendingMessage);
-        } while (true);
+        } while (processedCounter.compareTo(processLimit) < 0);
     }
 
     @Transactional
     public void savePendingMessage(final CustomerEntity customer) {
         pendingMessageRepository.save(map(customer));
-        processedCounter++;
+        processedCounter = processedCounter.add(BigInteger.ONE);
         log.info("c=MessagePublisherService, m=savePendingMessage, status=SAVED, count={}", processedCounter);
     }
 }

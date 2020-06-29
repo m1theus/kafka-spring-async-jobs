@@ -30,10 +30,10 @@ public class MessagePublisherService {
     private final KafkaTemplate<String, CustomerMessage> kafkaTemplate;
 
     @Value("${job.process.limit}")
-    private BigInteger processLimit = BigInteger.ZERO;
+    private BigInteger processLimit = BigInteger.ONE;
     @Value("${job.process.page-size}")
     private Integer pageSize = 1;
-    private Integer processedCounter = 0;
+    private BigInteger processedCounter = BigInteger.ZERO;
 
     @Async(DEFAULT_CORE_TASK_EXECUTOR)
     public void start() {
@@ -52,11 +52,12 @@ public class MessagePublisherService {
             }
 
             pendingEntities.parallelStream().forEach(this::publishAndSave);
-        } while (true);
+        } while (processedCounter.compareTo(processLimit) < 0);
     }
 
     private void publishAndSave(final CustomerPendingMessageEntity pendingMessage) {
         publish(pendingMessage);
+        processedCounter = processedCounter.add(BigInteger.ONE);
     }
 
     public void publish(final CustomerPendingMessageEntity pendingMessage) {
@@ -70,7 +71,6 @@ public class MessagePublisherService {
     private void savePublishedAndDeletePending(final CustomerPendingMessageEntity pendingMessage) {
         publishedMessageRepository.save(map(pendingMessage));
         pendingMessageRepository.delete(pendingMessage);
-        processedCounter++;
         log.info("M=publishMessage messageId={} topic={} Event Published Successfully", pendingMessage.getId(), CUSTOMER_TOPIC);
     }
 

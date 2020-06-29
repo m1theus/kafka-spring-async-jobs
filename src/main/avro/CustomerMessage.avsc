@@ -1,0 +1,14 @@
+{
+    "type": "record",
+    "name": "CustomerMessage",
+    "namespace": "io.github.m1theus",
+    "fields": [
+    { "name": "ID","type": "long" },
+    { "name": "CUSTOMER_ID", "type": "long" },
+    { "name": "FULL_NAME", "type": "string" },
+    { "name": "EMAIL", "type": "string" },
+    { "name": "NATIONALITY", "type": "string" },
+    { "name": "COUNTRY", "type": "string" },
+    { "name": "FULL_ADDRESS", "type": "string" }
+   ]
+}

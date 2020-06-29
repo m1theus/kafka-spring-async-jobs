@@ -1,0 +1,78 @@
+buildscript {
+    repositories {
+        maven { url "https://maven.springframework.org/release" }
+        maven { url "https://repo.maven.apache.org/maven2/" }
+        maven { url "https://plugins.gradle.org/m2/" }
+        maven { url "https://packages.confluent.io/maven/" }
+    }
+
+    dependencies {
+        classpath("io.spring.gradle:dependency-management-plugin:1.0.9.RELEASE")
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:2.2.2.RELEASE")
+        classpath("com.commercehub.gradle.plugin:gradle-avro-plugin:0.14.1")
+    }
+}
+
+apply plugin: 'java'
+apply plugin: 'application'
+apply plugin: 'com.commercehub.gradle.plugin.avro'
+apply plugin: 'io.spring.dependency-management'
+apply plugin: 'org.springframework.boot'
+
+sourceCompatibility = '11'
+targetCompatibility = '11'
+
+repositories {
+    maven { url "https://maven.springframework.org/release" }
+    maven { url "https://repo.maven.apache.org/maven2/" }
+    maven { url "https://plugins.gradle.org/m2/" }
+    maven { url "https://packages.confluent.io/maven/" }
+}
+
+dependencies {
+    def withoutSlf4j = { exclude group: 'org.slf4j' }
+
+    // Spring
+    implementation 'org.springframework.boot:spring-boot-starter-actuator:2.2.2.RELEASE'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa:2.2.2.RELEASE'
+    implementation 'org.springframework.kafka:spring-kafka:2.3.4.RELEASE'
+
+    // Kafka
+    implementation 'org.apache.kafka:kafka-streams:2.3.1'
+
+    // Mysql
+    implementation 'mysql:mysql-connector-java:8.0.18'
+
+    // Avro
+    implementation "io.confluent:kafka-avro-serializer:3.2.1", withoutSlf4j
+    implementation "org.apache.avro:avro:1.8.2", withoutSlf4j
+    implementation "org.apache.kafka:kafka-clients:2.3.1", withoutSlf4j
+
+    // Faker
+    implementation 'com.github.javafaker:javafaker:1.0.2'
+
+    // Lombok
+    compileOnly 'org.projectlombok:lombok:1.18.10'
+    annotationProcessor 'org.projectlombok:lombok:1.18.10'
+
+    testImplementation('org.springframework.boot:spring-boot-starter-test:2.2.2.RELEASE') {
+        exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+    }
+
+    testImplementation 'org.springframework.kafka:spring-kafka-test:2.3.4.RELEASE', withoutSlf4j
+}
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+avro {
+    createSetters = true
+    fieldVisibility = "PRIVATE"
+}
+
+test {
+    useJUnitPlatform()
+}
